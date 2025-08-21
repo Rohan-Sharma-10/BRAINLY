@@ -7,24 +7,30 @@ import RefreshToken from "../models/token";
  
 const router = express.Router();
 
-const signedUpBody = z.object({
-    username: z.string().min(1, {message: "Name cannot be empty"}).max(50),
-    email: z.string().email(),
-    password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(20, 'Password must be at most 20 characters')
-    .refine((value) => /[A-Z]/.test(value), {
-      message: 'Password must contain at least one uppercase letter',
+export const signedUpBody = z.object({
+  username: z.string()
+    .nonempty({ message: "Username is required" })
+    .max(50, { message: "Username must be at most 50 characters" }),
+
+  email: z.string()
+    .nonempty({ message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+
+  password: z.string()
+    .nonempty({ message: "Password is required" })
+    .min(8, { message: "Password must be at least 8 characters" })
+    .refine((val) => /[A-Z]/.test(val), {
+      message: "Password must contain at least one uppercase letter",
     })
-    .refine((value) => /[a-z]/.test(value), {
-      message: 'Password must contain at least one lowercase letter',
+    .refine((val) => /[a-z]/.test(val), {
+      message: "Password must contain at least one lowercase letter",
     })
-    .refine((value) => /[0-9]/.test(value), {
-      message: 'Password must contain at least one number',
+    .refine((val) => /[0-9]/.test(val), {
+      message: "Password must contain at least one number",
     })
-    .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), { // Customize special characters as needed
-      message: 'Password must contain at least one special character',
-    })
+    .refine((val) => /[!@#$%^&*]/.test(val), {
+      message: "Password must contain at least one special character",
+    }),
 });
 
 router.post("/signup", async(req: Request, res:Response): Promise<void> => {
